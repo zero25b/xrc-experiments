@@ -1,0 +1,10 @@
+Lib
+Scripts
+*.cfg
+Share
+.idea
+*.so
+*.o
+*.png
+__pycache__
+env
