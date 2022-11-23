@@ -1,6 +1,7 @@
-from xrc_experiments.utils import dump_blockchain_headers_file_to_pandas
-from xrc_experiments.blockcore_utils import get_blockcore_df
-from xrc_experiments import DATA_DIR
+from xrc_utils.electrum import dump_blockchain_headers_file_to_df
+from xrc_utils.blockcore import get_blockcore_df
+from xrc_utils import DATA_DIR
+
 
 def test_blockchain_headers_file_data_integrity():
 
@@ -8,7 +9,7 @@ def test_blockchain_headers_file_data_integrity():
 
     df_blockcore = get_blockcore_df(nmb_blocks=6000, offset=150000)
 
-    df_file = dump_blockchain_headers_file_to_pandas(blockchain_headers_file)
+    df_file = dump_blockchain_headers_file_to_df(blockchain_headers_file)
 
     # The data available on blockcore contains more columns than the blockchain_headers_corrupt file
     df_blockcore = df_blockcore[df_file.columns]

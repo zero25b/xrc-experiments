@@ -1,6 +1,5 @@
 from ctypes import *
-from xrc_experiments import X13_DIR
-
+from xrc_utils import X13_DIR
 
 try:
     LIB_X13 = cdll.LoadLibrary(X13_DIR.joinpath('libx13.so').as_posix())

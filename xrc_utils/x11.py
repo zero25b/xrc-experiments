@@ -1,6 +1,5 @@
 from ctypes import *
-from xrc_experiments import X11_DIR
-
+from xrc_utils import X11_DIR
 
 try:
     LIB_X11 = cdll.LoadLibrary(X11_DIR.joinpath('libx11.so').as_posix())
