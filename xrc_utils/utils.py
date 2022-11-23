@@ -1,9 +1,5 @@
-import pandas as pd
-import os
-
 HEADER_SIZE = 80
 
-DIGISHIELDX11_BLOCK_HEIGHT = 136135
 
 def bh2u(x: bytes) -> str:
     return x.hex()
@@ -47,36 +43,19 @@ def hash_encode(x: bytes) -> str:
     return bh2u(x[::-1])
 
 
-def deserialize_header(s: bytes, height: int) -> dict:
+def deserialize_header(s: bytes, height: int, bits_format='blockCore') -> dict:
+    assert bits_format in ['blockCore', 'electrum'], "Please select bits_format in ['blockCore', 'electrum']"
+
     hex_to_int = lambda s: int.from_bytes(s, byteorder='little')
     h = {}
     h['version'] = hex_to_int(bytes(s[0:4]))
     h['previousBlockHash'] = hash_encode(s[4:36])
     h['merkleroot'] = hash_encode(s[36:68])
     h['blockTime'] = hex_to_int(s[68:72])
-    h['bits'] = format(hex_to_int(s[72:76]), 'x')
+    bits = hex_to_int(s[72:76])
+    if bits_format == "blockCore":
+        bits = format(bits, 'x')
+    h['bits'] = bits
     h['nonce'] = hex_to_int(s[76:80])
     h['blockIndex'] = height
     return h
-
-
-def dump_blockchain_headers_file_to_pandas(header_file):
-    file_size = os.stat(header_file).st_size
-    assert file_size % HEADER_SIZE == 0, "File size should be a multiple of HEADER_SIZE."
-
-    nmb_rows = file_size // HEADER_SIZE
-    with open(header_file, 'rb') as f:
-        hexdata = f.read().hex()
-
-    raw_data = []
-
-    for h in range(nmb_rows):
-        db = bytes.fromhex(hexdata[2 * HEADER_SIZE * h:2 * HEADER_SIZE * (h + 1)])
-        raw_data.append(deserialize_header(db, h))
-
-    df = pd.DataFrame(raw_data)
-
-    # Reorder columns for convenience
-    df = df[[ 'blockIndex', 'blockTime', 'merkleroot', 'previousBlockHash', 'bits', 'nonce', 'version']]
-
-    return df

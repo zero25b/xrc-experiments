@@ -1,5 +1,5 @@
-from xrc_experiments.x11 import get_pow_hash_x11
-from xrc_experiments.x13 import get_pow_hash_x13
+from xrc_utils.x11 import get_pow_hash_x11
+from xrc_utils.x13 import get_pow_hash_x13
 
 
 def test_x11_hashing():

@@ -8,3 +8,4 @@ Share
 *.png
 __pycache__
 env
+win32
