@@ -1,10 +1,14 @@
-from ctypes import *
+from ctypes import cdll, create_string_buffer
 from xrc_utils import X11_DIR
+import os
 
 try:
-    LIB_X11 = cdll.LoadLibrary(X11_DIR.joinpath('libx11.so').as_posix())
+    LIB_X11 = cdll.LoadLibrary(X11_DIR.joinpath(os.name + "/libx11.so").as_posix())
 except Exception as e:
-    raise RuntimeError('libx11 did not load. It is either not installed or it could not load. Message: ' + str(e))
+    raise RuntimeError(
+        "libx11 did not load. It is either not installed or it could not load. Message: "
+        + str(e)
+    )
 
 
 def get_pow_hash_x11(value):
