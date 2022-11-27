@@ -13,27 +13,51 @@ def get_blockcore_df(nmb_blocks=1000, offset=160000) -> pd.DataFrame:
     Returns: list of blockchain headers in json format
 
     """
-    headers = {'accept': '*/*'}
+    headers = {"accept": "*/*"}
 
     data = []
 
     # Query BlockCore for header-data in chunks of 50
-    for k in range(nmb_blocks//50 + 1):
-        params = {'offset': str(offset + k * 50), 'limit': '50'}
-        response = requests.get('https://xrc.indexer.blockcore.net/api/query/block', params=params, headers=headers)
+    for k in range(nmb_blocks // 50 + 1):
+        params = {"offset": str(offset + k * 50), "limit": "50"}
+        response = requests.get(
+            "https://xrc.indexer.blockcore.net/api/query/block",
+            params=params,
+            headers=headers,
+        )
         data.extend(response.json())
 
     # Check that the data is in the correct order
     for idx in range(1, len(data)):
-        assert data[idx]['previousBlockHash'] == data[idx - 1]['blockHash'], "Block hashes out of order"
-        assert data[idx]['blockIndex'] == data[idx - 1]['blockIndex'] + 1, "Indexes out of order"
+        assert (
+            data[idx]["previousBlockHash"] == data[idx - 1]["blockHash"]
+        ), "Block hashes out of order"
+        assert (
+            data[idx]["blockIndex"] == data[idx - 1]["blockIndex"] + 1
+        ), "Indexes out of order"
 
     df = pd.DataFrame(data)
 
     # Reorder columns for convenience
-    df = df[['blockIndex', 'blockHash', 'blockTime', 'merkleroot', 'previousBlockHash', 'bits', 'nonce', 'version', 'nextBlockHash', 'blockSize',
-             'syncComplete', 'transactionCount', 'confirmations', 'difficulty', 'chainWork'
-             ]]
+    df = df[
+        [
+            "blockIndex",
+            "blockHash",
+            "blockTime",
+            "merkleroot",
+            "previousBlockHash",
+            "bits",
+            "nonce",
+            "version",
+            "nextBlockHash",
+            "blockSize",
+            "syncComplete",
+            "transactionCount",
+            "confirmations",
+            "difficulty",
+            "chainWork",
+        ]
+    ]
 
     return df
 
@@ -48,19 +72,27 @@ def get_blockcore_data(nmb_blocks=1000, offset=160000) -> List[Dict]:
     Returns: list of blockchain headers in json format
 
     """
-    headers = {'accept': '*/*'}
+    headers = {"accept": "*/*"}
 
     data = list([])
 
     # Query BlockCore for header-data in chunks of 50
-    for k in range(nmb_blocks//50 + 1):
-        params = {'offset': str(offset + k * 50), 'limit': '50'}
-        response = requests.get('https://xrc.indexer.blockcore.net/api/query/block', params=params, headers=headers)
+    for k in range(nmb_blocks // 50 + 1):
+        params = {"offset": str(offset + k * 50), "limit": "50"}
+        response = requests.get(
+            "https://xrc.indexer.blockcore.net/api/query/block",
+            params=params,
+            headers=headers,
+        )
         data.extend(response.json())
 
     # Check that the data is in the correct order
     for idx in range(1, len(data)):
-        assert data[idx]['previousBlockHash'] == data[idx - 1]['blockHash'], "Block hashes out of order"
-        assert data[idx]['blockIndex'] == data[idx - 1]['blockIndex'] + 1, "Indexes out of order"
+        assert (
+            data[idx]["previousBlockHash"] == data[idx - 1]["blockHash"]
+        ), "Block hashes out of order"
+        assert (
+            data[idx]["blockIndex"] == data[idx - 1]["blockIndex"] + 1
+        ), "Indexes out of order"
 
     return data

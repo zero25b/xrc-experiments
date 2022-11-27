@@ -17,11 +17,13 @@ def test_blockchain_headers_file_data_integrity():
     # The blockcore data we have downloaded extends past the end of the file data. So select all rows in
     # blockcore_data until the end of file data. Then remove the beginning of the file data to match the start of the
     # downloaded blockcore data
-    file_index_selection = (df_file['blockIndex'] >= df_blockcore['blockIndex'].min())
+    file_index_selection = df_file["blockIndex"] >= df_blockcore["blockIndex"].min()
 
     df_file = df_file[file_index_selection].reset_index(drop=True)
 
-    blockcore_index_selection = (df_blockcore['blockIndex'] <= df_file['blockIndex'].max())
+    blockcore_index_selection = (
+        df_blockcore["blockIndex"] <= df_file["blockIndex"].max()
+    )
 
     df_blockcore = df_blockcore[blockcore_index_selection]
 
