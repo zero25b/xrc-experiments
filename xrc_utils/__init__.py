@@ -1,4 +1,5 @@
 import pathlib
+import os
 
 XRC_UTILS_DIR = pathlib.Path(__file__).parent
 
@@ -11,3 +12,6 @@ DATA_DIR = ROOT_DIR.joinpath("data")
 X13_DIR = ROOT_DIR.joinpath("x13-hash")
 
 X11_DIR = ROOT_DIR.joinpath("x11-hash")
+
+OUTPUT_DIR = ROOT_DIR.joinpath("output")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
