@@ -2,6 +2,15 @@ import pandas as pd
 import requests
 from typing import List, Dict
 
+from xrc_utils.digishield import MAX_TARGET
+
+
+def target_to_difficulty(target: int) -> float:
+    """
+    Difficulty in the Blockcore API is calculated as
+    """
+    return MAX_TARGET * 1.0 / (4096 * target)
+
 
 def get_blockcore_df(nmb_blocks=1000, offset=160000) -> pd.DataFrame:
     """
