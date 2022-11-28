@@ -179,7 +179,7 @@ def get_averageTimepast(height: int) -> int:
 
 
 class ReadHeader:
-    DATA_PATH = DATA_DIR.joinpath("blockchain_headers_corrupt")
+    DATA_PATH = DATA_DIR.joinpath("blockchain_headers")
 
     def __call__(self, height, bits_format="electrum"):
         assert (
