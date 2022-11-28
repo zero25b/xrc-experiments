@@ -9,3 +9,4 @@ Share
 __pycache__
 env
 win32
+*.egg-info
