@@ -4,7 +4,7 @@ from xrc_utils.headers import (
     bfh,
     hash_encode,
     HEADER_SIZE,
-    deserialize_header,
+    deserialize_header, BLOCKCHAIN_HEADERS_PATH,
 )
 from xrc_utils.x11 import get_pow_hash_x11
 
@@ -179,7 +179,7 @@ def get_averageTimepast(height: int) -> int:
 
 
 class ReadHeader:
-    DATA_PATH = DATA_DIR.joinpath("blockchain_headers")
+    DATA_PATH = BLOCKCHAIN_HEADERS_PATH
 
     def __call__(self, height, bits_format="electrum"):
         assert (

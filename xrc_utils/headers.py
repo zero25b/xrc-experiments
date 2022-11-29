@@ -1,6 +1,10 @@
+from xrc_utils import DATA_DIR
+
 HEADER_SIZE = 80
 
 BITS_FORMATS = ["blockcore", "electrum"]
+
+BLOCKCHAIN_HEADERS_PATH = DATA_DIR.joinpath("blockchain_headers")
 
 
 def bh2u(x: bytes) -> str:

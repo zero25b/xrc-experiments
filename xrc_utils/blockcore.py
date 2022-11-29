@@ -19,31 +19,10 @@ def get_blockcore_df(nmb_blocks=1000, offset=160000) -> pd.DataFrame:
         nmb_blocks: number of blocks to return
         offset: index of starting block
 
-    Returns: list of blockchain headers in json format
+    Returns: list of blockchain headers in a pandas data frame
 
     """
-    headers = {"accept": "*/*"}
-
-    data = []
-
-    # Query BlockCore for header-data in chunks of 50
-    for k in range(nmb_blocks // 50 + 1):
-        params = {"offset": str(offset + k * 50), "limit": "50"}
-        response = requests.get(
-            "https://xrc.indexer.blockcore.net/api/query/block",
-            params=params,
-            headers=headers,
-        )
-        data.extend(response.json())
-
-    # Check that the data is in the correct order
-    for idx in range(1, len(data)):
-        assert (
-            data[idx]["previousBlockHash"] == data[idx - 1]["blockHash"]
-        ), "Block hashes out of order"
-        assert (
-            data[idx]["blockIndex"] == data[idx - 1]["blockIndex"] + 1
-        ), "Indexes out of order"
+    data = get_blockcore_data(nmb_blocks, offset)
 
     df = pd.DataFrame(data)
 
