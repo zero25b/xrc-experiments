@@ -1,6 +1,7 @@
-# Note that the following values of blocks 154998 and 15499 were extracted directly from a break-point while running
-# Electrum. They can be used to test the read_headers() function when calling Electrum routines.
+from xrc_simulations.simulations import PowSimulator
 
+
+# Blocks 154998 and 15499 were extracted directly from a break-point while running the Electrum wallet.
 ELECTRUM_154998 = {
     "version": 536870912,
     "previousBlockHash": "a872f8d169e7f48d04f31f174024501d0ec2898ea16e07ae2091b2526be8aa1c",
@@ -21,9 +22,7 @@ ELECTRUM_154999 = {
     "blockIndex": 154999,
 }
 
-# The following data was downloaded directly from the blockCore API. It can be used to test routines that
-# handle blockCore data.
-
+# BLOCKCORE_SAMPLE data was downloaded directly from the blockCore API.
 BLOCKCORE_SAMPLE = [
     {
         "blockHash": "a71caca3f80bbedbaf588745244f8781e97fcea109fabbc63b52943dc468ab57",
@@ -60,3 +59,18 @@ BLOCKCORE_SAMPLE = [
         "version": 536870912,
     },
 ]
+
+
+class FixtureSimulator(PowSimulator):
+    def __init__(self, network, miners, time_deltas):
+        self._time_deltas = time_deltas
+        super().__init__(network, miners)
+
+    def get_block_time(self, target, hashrate):
+        """
+        Override get_block_time routine, to return known block-times for tests
+        """
+        assert len(self._time_deltas) > 0, "No block-times available"
+        time = self._time_deltas[0]
+        self._time_deltas = self._time_deltas[1:]
+        return time

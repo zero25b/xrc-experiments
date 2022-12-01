@@ -7,9 +7,9 @@ from xrc_utils.digishield import MAX_TARGET
 
 def target_to_difficulty(target: int) -> float:
     """
-    Difficulty in the Blockcore API is calculated as
+    Target and difficulty are related as
     """
-    return MAX_TARGET * 1.0 / (4096 * target)
+    return MAX_TARGET * 1.0 / target
 
 
 def get_blockcore_df(nmb_blocks=1000, offset=160000) -> pd.DataFrame:
@@ -82,5 +82,11 @@ def get_blockcore_data(nmb_blocks=1000, offset=160000) -> List[Dict]:
         assert (
             data[idx]["blockIndex"] == data[idx - 1]["blockIndex"] + 1
         ), "Indexes out of order"
+
+    # Correct an error in difficulty in Blockcore data. Blockcore is storing difficulty as MAX_TARGET_BITCOIN/target
+    # rather than MAX_TARGET_XRC/target. MAX_TARGET_XRC = 2**236 - 1, and MAX_TARGET_BITCOIN = 2**224 - 1, so the
+    # difficulty is too small by a factor of 2**12.
+    for idx in range(len(data)):
+        data[idx]["difficulty"] = 2**12 * data[idx]["difficulty"]
 
     return data

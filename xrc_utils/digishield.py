@@ -1,10 +1,10 @@
-from xrc_utils import DATA_DIR
 from xrc_utils.headers import (
     serialize_header,
     bfh,
     hash_encode,
     HEADER_SIZE,
-    deserialize_header, BLOCKCHAIN_HEADERS_PATH,
+    deserialize_header,
+    BLOCKCHAIN_HEADERS_PATH,
 )
 from xrc_utils.x11 import get_pow_hash_x11
 
@@ -16,6 +16,7 @@ existing blockchain_headers file.
 """
 
 TESTNET = False
+# Note that MAX_TARGET = 2**236 - 1
 MAX_TARGET = 0x00000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 MAX_TARGET_2 = 0x00000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
 TARGET_2_FROMBLOCK_HEIGHT = 0
@@ -79,7 +80,7 @@ def get_target(index: int, height: int) -> int:
     bits = last.get("bits")
     target = bits_to_target(bits)
 
-    nActualTimespan = last.get("timestamp") - first.get("timestamp")
+    nActualTimespan = last.get("blockTime") - first.get("blockTime")
     nTargetTimespan = 14 * 24 * 60 * 60
     nActualTimespan = max(nActualTimespan, nTargetTimespan // 4)
     nActualTimespan = min(nActualTimespan, nTargetTimespan * 4)
