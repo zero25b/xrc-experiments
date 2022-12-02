@@ -72,3 +72,24 @@ def deserialize_header(s: bytes, height: int, bits_format="blockcore") -> dict:
     h["nonce"] = hex_to_int(s[76:80])
     h["blockIndex"] = height
     return h
+
+
+def bits_to_target(bits: int) -> int:
+    bitsN = (bits >> 24) & 0xFF
+    # if not (0x03 <= bitsN <= 0x1d):
+    #    raise Exception("First part of bits should be in [0x03, 0x1d]")
+    bitsBase = bits & 0xFFFFFF
+    # if not (0x8000 <= bitsBase <= 0x7fffff):
+    #    raise Exception("Second part of bits should be in [0x8000, 0x7fffff]")
+    return bitsBase << (8 * (bitsN - 3))
+
+
+def target_to_bits(target: int) -> int:
+    c = ("%064x" % target)[2:]
+    while c[:2] == "00" and len(c) > 6:
+        c = c[2:]
+    bitsN, bitsBase = len(c) // 2, int.from_bytes(bfh(c[:6]), byteorder="big")
+    if bitsBase >= 0x800000:
+        bitsN += 1
+        bitsBase >>= 8
+    return bitsN << 24 | bitsBase

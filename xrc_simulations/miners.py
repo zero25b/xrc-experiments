@@ -4,7 +4,7 @@ from xrc_simulations.simulations import MockMinerBase, NetworkConfig, THZ, GHZ
 class SimpleMiner(MockMinerBase):
     def set_hash_rate(self, *args):
         """
-        Hash-rate is set by the constructor. So pass.
+        Hash-rate is set by the constructor.
         """
         pass
 
@@ -20,8 +20,8 @@ class AttackMiner(MockMinerBase):
         super().__init__(blockchain, hash_rate)
 
     def set_hash_rate(self, config: NetworkConfig, *args):
-        if config.difficulty < 50000 * 2**12:
+        if config.difficulty < 1 * 10**9:
             if self._hash_rate == 0:
                 self._hash_rate = self._hp
-        elif config.difficulty > 750000 * 2**12:
+        elif config.difficulty > 5 * 10**9:
             self._hash_rate = 0

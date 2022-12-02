@@ -1,11 +1,12 @@
-from xrc_simulations.simulations import MockNetworkBase
+from typing import Dict
+
+from xrc_simulations.simulations import MockNetworkBase, NetworkConfig
 from xrc_utils.digishield import (
     DIGISHIELDX11_BLOCK_HEIGHT,
     MissingHeader,
-    bits_to_target,
-    target_to_bits,
     MAX_TARGET,
 )
+from xrc_utils.headers import bits_to_target, target_to_bits
 
 
 class XRCDigishieldNetwork(MockNetworkBase):
@@ -92,9 +93,64 @@ class XRCDigishieldNetwork(MockNetworkBase):
         bits = last.get("bits")
         target = bits_to_target(bits)
         new_target = target * int(nActualTimespan)
-        new_target = new_target / nAveragingTargetTimespanV4
+        new_target = new_target * 1.0 / nAveragingTargetTimespanV4
         new_targetBits = target_to_bits(int(new_target))
         bitsToTarget = bits_to_target(new_targetBits)
         bitsToTarget = min(MAX_TARGET, bitsToTarget)
-        assert bits_to_target(target_to_bits(bitsToTarget)) == bitsToTarget
+        # assert bits_to_target(target_to_bits(bitsToTarget)) == bitsToTarget
+        return target_to_bits(bitsToTarget)
+
+
+class DarkGravityWaveNetwork(MockNetworkBase):
+    def __init__(
+        self,
+        blockchain: Dict,
+        config: NetworkConfig,
+        nAveragingInterval=75,
+        multiAlgoTargetSpacingV4=10 * 60,
+    ):
+        self.nAveragingInterval = nAveragingInterval
+        self.multiAlgoTargetSpacingV4 = multiAlgoTargetSpacingV4
+        super().__init__(blockchain, config)
+
+    def get_target(self, height):
+
+        nAveragingTargetTimespanV4 = (
+            self.nAveragingInterval * self.multiAlgoTargetSpacingV4
+        )
+
+        if (height - DIGISHIELDX11_BLOCK_HEIGHT) <= (self.nAveragingInterval + 11):
+            return int(
+                0x000000000001A61A000000000000000000000000000000000000000000000000
+            )
+
+        last = self.read_header(height - 1)
+        first = self.read_header(height - self.nAveragingInterval)
+        if not first or not last:
+            raise MissingHeader()
+
+        bnPastTargetAvg = 0
+
+        for nCountBlocks in range(1, self.nAveragingInterval + 1):
+            header = self.read_header(height - nCountBlocks)
+            bnTarget = bits_to_target(header.get("bits"))
+            if nCountBlocks == 1:
+                bnPastTargetAvg = bnTarget
+            else:
+                bnPastTargetAvg = (bnPastTargetAvg * nCountBlocks + bnTarget) / (
+                    nCountBlocks + 1
+                )
+
+        nActualTimespan = last.get("blockTime") - first.get("blockTime")
+
+        if nActualTimespan < 1 / 3.0 * nAveragingTargetTimespanV4:
+            nActualTimespan = 1 / 3.0 * nAveragingTargetTimespanV4
+        elif nActualTimespan > 3 * nAveragingTargetTimespanV4:
+            nActualTimespan = 3 * nAveragingTargetTimespanV4
+
+        new_target = bnPastTargetAvg * nActualTimespan / nAveragingTargetTimespanV4
+        new_target = min(MAX_TARGET, new_target)
+        new_targetBits = target_to_bits(int(new_target))
+        bitsToTarget = bits_to_target(new_targetBits)
+
         return target_to_bits(bitsToTarget)

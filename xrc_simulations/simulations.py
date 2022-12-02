@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from typing import List, Type
+from typing import List, Type, Dict
 import numpy as np
 from numpy.random import choice
 from xrc_utils.blockcore import target_to_difficulty
-from xrc_utils.digishield import bits_to_target, MAX_TARGET
+from xrc_utils.digishield import MAX_TARGET
+from xrc_utils.headers import bits_to_target
 from copy import copy
 
 SEED = 1234
@@ -21,9 +22,10 @@ class XRCBlock:
     bits: int
     nonce: int
     block_index: int
+    hash_rate: int = None
 
     def to_json(self) -> dict:
-        return {
+        output_dict = {
             "version": self.version,
             "previousBlockHash": self.previous_block_hash,
             "merkleroot": self.merkleroot,
@@ -32,6 +34,9 @@ class XRCBlock:
             "nonce": self.nonce,
             "blockIndex": self.block_index,
         }
+        if self.hash_rate is not None:
+            output_dict["hashRate"] = self.hash_rate
+        return output_dict
 
 
 @dataclass
@@ -77,6 +82,7 @@ class MockMinerBase:
             bits=config.bits,
             nonce=nonce,
             block_index=config.block_index + 1,
+            hash_rate=self.hash_rate,
         )
         return next_block
 
@@ -93,18 +99,22 @@ class MockNetworkBase:
     adjustment logic.
     """
 
-    def __init__(self, blockchain: dict, config: NetworkConfig):
+    def __init__(self, blockchain: Dict, config: NetworkConfig):
         self.blockchain = copy(blockchain)  # The blockchain should be a copy
-        self.config = config
+        self._config = config
         self.logging_list = []
 
     @property
     def difficulty(self):
-        return self.config.difficulty
+        return self._config.difficulty
 
     @property
     def target(self):
-        return self.config.target
+        return self._config.target
+
+    @property
+    def config(self):
+        return self._config
 
     def read_header(self, idx):
         header = self.blockchain.get(idx)
@@ -124,11 +134,16 @@ class MockNetworkBase:
         bits = self.get_target(next_block.block_index + 1)
 
         # Update the internal configuration based on the new block
-        self.config = NetworkConfig(
+        self._config = NetworkConfig(
             block_time=next_block.block_time,
             block_index=next_block.block_index,
             bits=bits,
         )
+
+    def get_df(self):
+        import pandas as pd
+
+        return pd.DataFrame(self.blockchain).T
 
 
 class PowSimulator(object):
@@ -140,7 +155,7 @@ class PowSimulator(object):
 
     @property
     def hash_rate(self):
-        return np.sum([miner.hash_rate for miner in self.miners], axis=0)
+        return np.sum([copy(miner).hash_rate for miner in self.miners], axis=0)
 
     @staticmethod
     def get_block_time(target, hashrate):
@@ -155,9 +170,9 @@ class PowSimulator(object):
         """
         lmbda = 2**20 * (MAX_TARGET * 1.0 / target) * 1.0 / hashrate
 
-        block_time = np.random.gamma(1, scale=lmbda)
+        block_time = int(np.random.gamma(1, scale=lmbda))
 
-        return block_time
+        return np.max([1, block_time])
 
     def run(self, nmb_iterations, seed=None):
         for idx in range(nmb_iterations):
@@ -170,7 +185,7 @@ class PowSimulator(object):
             time_delta = self.get_block_time(self.network.target, self.hash_rate)
 
             next_block = self.miners[miner_idx].create_block(
-                self.network.config, time_delta, miner_idx
+                config=self.network.config, time_delta=time_delta, nonce=miner_idx
             )
 
             self.network.update(next_block)

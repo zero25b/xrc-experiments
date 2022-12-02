@@ -1,18 +1,17 @@
-from copy import copy
+import unittest
 
 import numpy as np
 from xrc_simulations.miners import SimpleMiner
-from xrc_simulations.network import XRCDigishieldNetwork
+from xrc_simulations.network import XRCDigishieldNetwork, DarkGravityWaveNetwork
 from xrc_simulations.simulations import XRCBlock, NetworkConfig, GHZ, PowSimulator
 from tests.fixtures import ELECTRUM_154999, FixtureSimulator
 from xrc_simulations.utils import convert_list_to_blockchain
-from xrc_utils import digishield
+from xrc_utils import digishield, dash
 from xrc_utils.blockcore import target_to_difficulty
 from xrc_utils.digishield import (
-    bits_to_target,
     get_targetDigishield,
-    target_to_bits,
 )
+from xrc_utils.headers import bits_to_target, target_to_bits
 
 
 def test_xrc_block_to_json():
@@ -60,10 +59,10 @@ def test_network_prediction():
         bits=next_data["bits"],
     )
 
-    network = XRCDigishieldNetwork(blockchain=copy(blockchain), config=config)
+    network = XRCDigishieldNetwork(blockchain=blockchain, config=config)
 
     miners = [
-        SimpleMiner(blockchain=copy(blockchain), hash_rate=100 * GHZ),
+        SimpleMiner(blockchain=blockchain, hash_rate=100 * GHZ),
     ]
 
     simulator = PowSimulator(network=network, miners=miners)
@@ -113,10 +112,10 @@ def test_with_known_block_times():
     time_deltas = block_times[1:] - block_times[:-1]
 
     # Instantiate a simulation, using the known time-deltas
-    network = XRCDigishieldNetwork(blockchain=copy(blockchain), config=config)
+    network = XRCDigishieldNetwork(blockchain=blockchain, config=config)
 
     miners = [
-        SimpleMiner(blockchain=copy(blockchain), hash_rate=100 * GHZ),
+        SimpleMiner(blockchain=blockchain, hash_rate=100 * GHZ),
     ]
 
     simulator = FixtureSimulator(
@@ -131,3 +130,54 @@ def test_with_known_block_times():
             == digishield.read_header(idx)["blockTime"]
         )
         assert network.blockchain[idx]["bits"] == digishield.read_header(idx)["bits"]
+
+
+def test_with_dash_data():
+    """
+    Check that we recover the correct target when feeding known block times.
+    """
+    raw_data = [dash.read_header(idx) for idx in range(999900, 999925)]
+
+    n = 23
+
+    blockchain = convert_list_to_blockchain(raw_data[0 : n + 1])
+
+    data = raw_data[n]  # Last data point in the blockchain
+    next_data = raw_data[n + 1]
+
+    config = NetworkConfig(
+        block_index=data["blockIndex"],
+        block_time=data["blockTime"],
+        bits=next_data["bits"],
+    )
+
+    # Calculate the time-since-last-block for the blocks walking forward from the end of the real data.
+    block_times = []
+    for data in raw_data:
+        block_times.append(data["blockTime"])
+
+    block_times = np.array(block_times)
+    time_deltas = block_times[1:] - block_times[:-1]
+
+    # Instantiate a simulation, using the known time-deltas. Dash uses a 2.5 minute block time and 24 block look-back
+    # for difficulty adjustments.
+    network = DarkGravityWaveNetwork(
+        blockchain=blockchain,
+        config=config,
+        nAveragingInterval=24,
+        multiAlgoTargetSpacingV4=2.5 * 60,
+    )
+
+    miners = [
+        SimpleMiner(blockchain=blockchain, hash_rate=100 * GHZ),
+    ]
+
+    simulator = FixtureSimulator(
+        network=network, miners=miners, time_deltas=time_deltas[-1:]
+    )
+
+    simulator.run(1)
+
+    # Check that the next target is exactly the target attached saved in DASH block 999925.
+    # Note that this target is NOT contained in the fixture data.
+    assert hex(network.config.bits) == "0x19551c4d"
