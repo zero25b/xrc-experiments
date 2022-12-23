@@ -1,6 +1,5 @@
 FROM ubuntu:latest
 USER root
-WORKDIR ./usr/src
 RUN apt update
 RUN apt upgrade
 RUN apt install -y npm build-essential libzmq3-dev wget
