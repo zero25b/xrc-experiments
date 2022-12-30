@@ -1,3 +1,4 @@
+# Following https://docs.dash.org/en/stable/docs/user/developers/insight.html
 FROM ubuntu:latest
 USER root
 RUN apt update
