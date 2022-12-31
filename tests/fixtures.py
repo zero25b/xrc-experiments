@@ -60,6 +60,135 @@ BLOCKCORE_SAMPLE = [
     },
 ]
 
+# Extracted from unit tests in https://github.com/dashevo/dark-gravity-wave-js
+DASH_MAINNET_BLOCKS = [
+  {
+    "blockIndex": 999900,
+    "blockTime": 1546794811,
+    "target": 0x1937efd3,
+  },
+  {
+    "blockIndex": 999901,
+    "blockTime": 1546794872,
+    "target": 0x193bdb17,
+  },
+  {
+    "blockIndex": 999902,
+    "blockTime": 1546795363,
+    "target": 0x193c2e06,
+  },
+  {
+    "blockIndex": 999903,
+    "blockTime": 1546795705,
+    "target": 0x19436374,
+  },
+  {
+    "blockIndex": 999904,
+    "blockTime": 1546795801,
+    "target": 0x1942c8da,
+  },
+  {
+    "blockIndex": 999905,
+    "blockTime": 1546796153,
+    "target": 0x1942a824,
+  },
+  {
+    "blockIndex": 999906,
+    "blockTime": 1546796323,
+    "target": 0x19466999,
+  },
+  {
+    "blockIndex": 999907,
+    "blockTime": 1546796325,
+    "target": 0x194815a5,
+  },
+  {
+    "blockIndex": 999908,
+    "blockTime": 1546796396,
+    "target": 0x19481272,
+  },
+  {
+    "blockIndex": 999909,
+    "blockTime": 1546796425,
+    "target": 0x1948b446,
+  },
+  {
+    "blockIndex": 999910,
+    "blockTime": 1546796594,
+    "target": 0x194767ac,
+  },
+  {
+    "blockIndex": 999911,
+    "blockTime": 1546797416,
+    "target": 0x194798d6,
+  },
+  {
+    "blockIndex": 999912,
+    "blockTime": 1546797529,
+    "target": 0x19560a56,
+  },
+  {
+    "blockIndex": 999913,
+    "blockTime": 1546797597,
+    "target": 0x19592a34,
+  },
+  {
+    "blockIndex": 999914,
+    "blockTime": 1546797677,
+    "target": 0x195bb28f,
+  },
+  {
+    "blockIndex": 999915,
+    "blockTime": 1546797788,
+    "target": 0x195c638e,
+  },
+  {
+    "blockIndex": 999916,
+    "blockTime": 1546798067,
+    "target": 0x195a9134,
+  },
+  {
+    "blockIndex": 999917,
+    "blockTime": 1546798096,
+    "target": 0x195a40bd,
+  },
+  {
+    "blockIndex": 999918,
+    "blockTime": 1546798145,
+    "target": 0x19532245,
+  },
+  {
+    "blockIndex": 999919,
+    "blockTime": 1546798220,
+    "target": 0x194eadda,
+  },
+  {
+    "blockIndex": 999920,
+    "blockTime": 1546798311,
+    "target": 0x1950aaf2,
+  },
+  {
+    "blockIndex": 999921,
+    "blockTime": 1546798458,
+    "target": 0x195298e1,
+  },
+  {
+    "blockIndex": 999922,
+    "blockTime": 1546798565,
+    "target": 0x1955383b,
+  },
+  {
+    "blockIndex": 999923,
+    "blockTime": 1546798603,
+    "target": 0x195587da,
+  },
+  {
+    "blockIndex": 999924,
+    "blockTime": 1546798801,
+    "target": 0x19514193,
+  },
+]
+
 
 class FixtureSimulator(PowSimulator):
     def __init__(self, network, miners, time_deltas):

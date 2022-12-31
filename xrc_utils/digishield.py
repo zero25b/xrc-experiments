@@ -5,6 +5,8 @@ from xrc_utils.headers import (
     HEADER_SIZE,
     deserialize_header,
     BLOCKCHAIN_HEADERS_PATH,
+    bits_to_target,
+    target_to_bits,
 )
 from xrc_utils.x11 import get_pow_hash_x11
 
@@ -33,27 +35,6 @@ def hash_for_pow(header: dict) -> str:
     assert header["blockIndex"] > DIGISHIELDX11_BLOCK_HEIGHT
 
     return hash_encode(get_pow_hash_x11(bfh(header_serialized)))
-
-
-def bits_to_target(bits: int) -> int:
-    bitsN = (bits >> 24) & 0xFF
-    # if not (0x03 <= bitsN <= 0x1d):
-    #    raise Exception("First part of bits should be in [0x03, 0x1d]")
-    bitsBase = bits & 0xFFFFFF
-    # if not (0x8000 <= bitsBase <= 0x7fffff):
-    #    raise Exception("Second part of bits should be in [0x8000, 0x7fffff]")
-    return bitsBase << (8 * (bitsN - 3))
-
-
-def target_to_bits(target: int) -> int:
-    c = ("%064x" % target)[2:]
-    while c[:2] == "00" and len(c) > 6:
-        c = c[2:]
-    bitsN, bitsBase = len(c) // 2, int.from_bytes(bfh(c[:6]), byteorder="big")
-    if bitsBase >= 0x800000:
-        bitsN += 1
-        bitsBase >>= 8
-    return bitsN << 24 | bitsBase
 
 
 def get_target(index: int, height: int) -> int:

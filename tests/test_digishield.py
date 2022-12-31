@@ -1,12 +1,10 @@
 from tests.fixtures import ELECTRUM_154999, ELECTRUM_154998
 from xrc_utils import digishield
 from xrc_utils.digishield import (
-    target_to_bits,
     get_targetDigishield,
-    bits_to_target,
 )
 from xrc_utils.electrum import dump_blockchain_headers_file_to_df
-from xrc_utils.headers import BLOCKCHAIN_HEADERS_PATH
+from xrc_utils.headers import BLOCKCHAIN_HEADERS_PATH, bits_to_target, target_to_bits
 
 
 def test_digishield_read_header():

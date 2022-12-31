@@ -1,39 +1,20 @@
 from datetime import datetime
+
 import pandas as pd
 
 from xrc_simulations.utils import convert_list_to_blockchain
-from xrc_simulations.simulations import NetworkConfig, GHZ, THZ
-from xrc_simulations.simulations import PowSimulator
-from xrc_simulations.network import XRCDigishieldNetwork
+from xrc_simulations.simulations import PowSimulator, NetworkConfig, GHZ, THZ
+from xrc_simulations.network import (
+    DarkGravityWaveNetwork,
+)
 from xrc_simulations.miners import SimpleMiner, AttackMiner
-from xrc_utils import digishield
-from xrc_utils.blockcore import target_to_difficulty, get_blockcore_df
-from xrc_utils.digishield import bits_to_target
+from xrc_utils import digishield, OUTPUT_DIR
+from xrc_utils.analysis import (
+    add_analysis_columns,
+    create_bounded_difficulty_plot,
+    create_block_difficulty_plot,
+)
 import matplotlib.pyplot as plt
-
-
-def parse_df(df):
-
-    # Convert bits to target
-    df["target"] = df["bits"].apply(lambda x: bits_to_target(x))
-
-    # Add time-since-last block in minutes
-    df["timeDeltaMinutes"] = (df["blockTime"] - df["blockTime"].shift(1)) * 1.0 / 60
-
-    # Convert ordinal time-of-day to timestamp
-    df["time"] = df["blockTime"].apply(lambda x: datetime.fromtimestamp(int(x)))
-
-    # Calculate percentage change in target
-    df["targetChange"] = df["target"] * 1.0 / df["target"].shift(1)
-
-    # Add difficulty (as shown in blockCore -- could be too low by a factor of 4096)
-    df["difficulty"] = df["target"].apply(lambda x: target_to_difficulty(x))
-
-    df["difficultyPercentChange"] = (
-        df["difficulty"] * 1.0 / df["difficulty"].shift(1) - 1
-    )
-
-    return df
 
 
 def create_plot(df_simulated, df_real):
@@ -55,9 +36,13 @@ def create_plot(df_simulated, df_real):
 
 
 if __name__ == "__main__":
-    n = 150
+    n = 1150
 
-    raw_data = [digishield.read_header(idx) for idx in range(150000, 151000)]
+    start = 150000
+    nmb_blocks = 10000
+    end = start + nmb_blocks
+
+    raw_data = [digishield.read_header(idx) for idx in range(start, end)]
 
     blockchain = convert_list_to_blockchain(raw_data[0 : n + 1])
 
@@ -70,29 +55,50 @@ if __name__ == "__main__":
         bits=next_data["bits"],
     )
 
-    network = XRCDigishieldNetwork(blockchain=blockchain, config=config)
+    network = DarkGravityWaveNetwork(blockchain=blockchain, config=config)
 
     miners = [
-        SimpleMiner(blockchain=blockchain, hash_rate=300 * GHZ),
-        AttackMiner(blockchain=blockchain, hash_rate=70 * THZ, on=False),
+        SimpleMiner(blockchain=blockchain, hash_rate=2 * THZ),
+        AttackMiner(blockchain=blockchain, hash_rate=70 * THZ, on=True),
     ]
 
     simulator = PowSimulator(network=network, miners=miners)
 
-    simulator.run(850)
+    simulator.run(nmb_blocks - n)
 
     # Extract the simulated blockchain data, and parse it into a useful dataframe
-    df_simulated = pd.DataFrame(network.blockchain).T
+    df_simulated = network.get_df()
 
-    df_simulated = parse_df(df_simulated)
+    df_simulated = add_analysis_columns(df_simulated)
 
-    # Download data from blockCore
-    df_real = get_blockcore_df(nmb_blocks=1000, offset=150000)
+    start_time = datetime.strptime("2022-08-31", "%Y-%m-%d")
 
-    df_real["bits"] = df_real["bits"].apply(
-        lambda x: int(x, 16)
-    )  # Convert to Electrum bits format
+    end_time = start_time + pd.Timedelta("1d")
 
-    df_real = parse_df(df_real)
+    create_block_difficulty_plot(
+        df_simulated,
+        start_time,
+        end_time,
+        OUTPUT_DIR.joinpath("simulated_august_31_blocks.png"),
+    )
+
+    create_bounded_difficulty_plot(
+        df_simulated,
+        start_time,
+        end_time,
+        OUTPUT_DIR.joinpath("simulated_august_31_bounds.png"),
+    )
+
+    df_real = pd.DataFrame(raw_data)
+
+    df_real = add_analysis_columns(df_real)
+
+    create_block_difficulty_plot(
+        df_real, start_time, end_time, OUTPUT_DIR.joinpath("real_august_31_blocks.png")
+    )
+
+    create_bounded_difficulty_plot(
+        df_real, start_time, end_time, OUTPUT_DIR.joinpath("real_august_31_bounds.png")
+    )
 
     create_plot(df_simulated, df_real)
