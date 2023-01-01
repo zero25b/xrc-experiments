@@ -2,12 +2,12 @@ from datetime import datetime
 
 import pandas as pd
 
-from xrc_simulations.utils import convert_list_to_blockchain
-from xrc_simulations.simulations import PowSimulator, NetworkConfig, GHZ, THZ
-from xrc_simulations.network import (
+from pow_simulations.utils import convert_list_to_blockchain
+from pow_simulations.simulations import PowSimulator, NetworkConfig, GHZ, THZ
+from pow_simulations.network import (
     DarkGravityWaveNetwork,
 )
-from xrc_simulations.miners import SimpleMiner, AttackMiner
+from pow_simulations.miners import SimpleMiner, AttackMiner
 from xrc_utils import digishield, OUTPUT_DIR
 from xrc_utils.analysis import (
     add_analysis_columns,

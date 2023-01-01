@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name="xrc-experiments",
     version="0.0.1",
-    packages=["tests", "xrc_utils", "xrc_experiments", "xrc_simulations"],
+    packages=["tests", "xrc_utils", "xrc_experiments", "pow_simulations"],
     url="",
     license="MIT",
     author="zero25",

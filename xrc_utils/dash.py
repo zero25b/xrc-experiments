@@ -1,5 +1,5 @@
 from tests.fixtures import DASH_MAINNET_BLOCKS
-from xrc_simulations.utils import convert_list_to_blockchain
+from pow_simulations.utils import convert_list_to_blockchain
 from xrc_utils.headers import bits_to_target
 
 

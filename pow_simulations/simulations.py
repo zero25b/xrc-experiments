@@ -14,7 +14,7 @@ THZ = 10**12
 
 
 @dataclass
-class XRCBlock:
+class PowBlock:
     version: int
     previous_block_hash: str
     merkleroot: str
@@ -56,7 +56,7 @@ class NetworkConfig:
 
 class MockMinerBase:
     """
-    Base class for miner-xrc_simulations
+    Base class for miner-pow_simulations
     """
 
     def __init__(self, blockchain: dict, hash_rate: int):
@@ -74,7 +74,7 @@ class MockMinerBase:
 
     def create_block(self, config: NetworkConfig, time_delta: int, nonce: int):
         synthetic_hash = f"synthetic_{config.block_index}"  # TODO: This is a hack. Replace with the correct hash.
-        next_block = XRCBlock(
+        next_block = PowBlock(
             version=0,
             previous_block_hash=synthetic_hash,
             merkleroot="synthetic",
@@ -86,7 +86,7 @@ class MockMinerBase:
         )
         return next_block
 
-    def update(self, config: NetworkConfig, next_block: XRCBlock):
+    def update(self, config: NetworkConfig, next_block: PowBlock):
         self.blockchain[next_block.block_index] = next_block.to_json()
         self.set_hash_rate(config)
 
@@ -126,7 +126,7 @@ class MockNetworkBase:
     def get_target(self, *args):
         raise NotImplementedError
 
-    def update(self, next_block: XRCBlock):
+    def update(self, next_block: PowBlock):
         # Add the next block to the internal blockchain
         self.blockchain[next_block.block_index] = next_block.to_json()
 

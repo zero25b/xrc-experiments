@@ -1,4 +1,4 @@
-from xrc_simulations.simulations import MockMinerBase, NetworkConfig, THZ, GHZ
+from pow_simulations.simulations import MockMinerBase, NetworkConfig, THZ, GHZ
 
 
 class SimpleMiner(MockMinerBase):

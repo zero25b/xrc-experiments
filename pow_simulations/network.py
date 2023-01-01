@@ -1,6 +1,6 @@
 from typing import Dict
 
-from xrc_simulations.simulations import MockNetworkBase, NetworkConfig
+from pow_simulations.simulations import MockNetworkBase, NetworkConfig
 from xrc_utils.digishield import (
     DIGISHIELDX11_BLOCK_HEIGHT,
     MissingHeader,

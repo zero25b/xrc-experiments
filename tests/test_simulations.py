@@ -1,11 +1,11 @@
 import unittest
 
 import numpy as np
-from xrc_simulations.miners import SimpleMiner
-from xrc_simulations.network import XRCDigishieldNetwork, DarkGravityWaveNetwork
-from xrc_simulations.simulations import XRCBlock, NetworkConfig, GHZ, PowSimulator
+from pow_simulations.miners import SimpleMiner
+from pow_simulations.network import XRCDigishieldNetwork, DarkGravityWaveNetwork
+from pow_simulations.simulations import PowBlock, NetworkConfig, GHZ, PowSimulator
 from tests.fixtures import ELECTRUM_154999, FixtureSimulator
-from xrc_simulations.utils import convert_list_to_blockchain
+from pow_simulations.utils import convert_list_to_blockchain
 from xrc_utils import digishield, dash
 from xrc_utils.blockcore import target_to_difficulty
 from xrc_utils.digishield import (
@@ -16,7 +16,7 @@ from xrc_utils.headers import bits_to_target, target_to_bits
 
 def test_xrc_block_to_json():
 
-    next_block = XRCBlock(
+    next_block = PowBlock(
         version=536870912,
         previous_block_hash="536fd637e87dfa548857b81c46f9078344949f2b8d858b305a5c1f6b4ce06640",
         merkleroot="4f72d77f443edb77eadf67ad3cbdad4d0115a31f481968af04772629ee570b73",
