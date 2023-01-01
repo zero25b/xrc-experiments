@@ -1,5 +1,3 @@
-import unittest
-
 import numpy as np
 from pow_simulations.miners import SimpleMiner
 from pow_simulations.network import XRCDigishieldNetwork, DarkGravityWaveNetwork
