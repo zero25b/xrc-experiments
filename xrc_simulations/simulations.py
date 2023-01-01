@@ -163,12 +163,12 @@ class PowSimulator(object):
         Note: In a proof-of-work network, block times depend on the difficulty and the hash-rate. Assuming a constant
         hash-rate between blocks, implies the block-time can be simulated by sampling from a gamma-random variable.
 
-        We calculate the expected time-to-block as follows: We know MAX_TARGET = (2**236 - 1), and there are 2**256
-        possible hashes. Hashes which are less than the target are acceptable. The expected pay-off per-hash is
-        essentially P = target/2**256 ~ target/(MAX_TARGET*2**20) = 1/(2**20*D). Expected pay-off per-second is
-        P * H = H/(2**20 * D), which implies seconds-until-payoff equals 2**20 * D / H
+        We calculate the expected time-to-block as follows: We know there are 2**256 possible hashes.
+        Hashes which are less than the target are acceptable. The expected pay-off per-hash is
+        essentially P = target/2**256. Expected pay-off per-second equals P * H = H*target/(2**256),
+        which implies seconds-until-payoff equals 2**256 / (target * H)
         """
-        lmbda = 2**20 * (MAX_TARGET * 1.0 / target) * 1.0 / hashrate
+        lmbda = 2**256 * 1.0 / target * 1.0 / hashrate
 
         block_time = int(np.random.gamma(1, scale=lmbda))
 
