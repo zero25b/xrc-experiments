@@ -3,7 +3,6 @@ from typing import List, Type, Dict
 import numpy as np
 from numpy.random import choice
 from xrc_utils.blockcore import target_to_difficulty
-from xrc_utils.digishield import MAX_TARGET
 from xrc_utils.headers import bits_to_target
 from copy import copy
 
